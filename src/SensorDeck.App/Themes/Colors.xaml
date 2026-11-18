@@ -1,0 +1,51 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Base palette -->
+    <Color x:Key="BgColor">#0B0E14</Color>
+    <Color x:Key="SurfaceColor">#121722</Color>
+    <Color x:Key="RaisedColor">#18202D</Color>
+    <Color x:Key="HoverColor">#1E2838</Color>
+    <Color x:Key="BorderColor">#232C3B</Color>
+    <Color x:Key="TextColor">#E6EAF2</Color>
+    <Color x:Key="MutedColor">#8A94A6</Color>
+    <Color x:Key="DimColor">#5B6577</Color>
+    <Color x:Key="AccentColor">#3B82F6</Color>
+    <Color x:Key="AccentLightColor">#60A5FA</Color>
+    <Color x:Key="AccentDeepColor">#1D4ED8</Color>
+    <Color x:Key="WarnColor">#F59E0B</Color>
+    <Color x:Key="HotColor">#EF4444</Color>
+    <Color x:Key="OkColor">#22C55E</Color>
+    <Color x:Key="UnsupportedColor">#4B5563</Color>
+
+    <SolidColorBrush x:Key="BgBrush" Color="{StaticResource BgColor}" />
+    <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource SurfaceColor}" />
+    <SolidColorBrush x:Key="RaisedBrush" Color="{StaticResource RaisedColor}" />
+    <SolidColorBrush x:Key="HoverBrush" Color="{StaticResource HoverColor}" />
+    <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}" />
+    <SolidColorBrush x:Key="TextBrush" Color="{StaticResource TextColor}" />
+    <SolidColorBrush x:Key="MutedBrush" Color="{StaticResource MutedColor}" />
+    <SolidColorBrush x:Key="DimBrush" Color="{StaticResource DimColor}" />
+    <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}" />
+    <SolidColorBrush x:Key="AccentLightBrush" Color="{StaticResource AccentLightColor}" />
+    <SolidColorBrush x:Key="WarnBrush" Color="{StaticResource WarnColor}" />
+    <SolidColorBrush x:Key="HotBrush" Color="{StaticResource HotColor}" />
+    <SolidColorBrush x:Key="OkBrush" Color="{StaticResource OkColor}" />
+    <SolidColorBrush x:Key="UnsupportedBrush" Color="{StaticResource UnsupportedColor}" />
+    <SolidColorBrush x:Key="AccentSoftBrush" Color="#1A3B82F6" />
+    <SolidColorBrush x:Key="TrackBrush" Color="#202938" />
+
+    <LinearGradientBrush x:Key="AccentGradient" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Color="{StaticResource AccentDeepColor}" Offset="0" />
+        <GradientStop Color="{StaticResource AccentLightColor}" Offset="1" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="CardGradient" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#151B27" Offset="0" />
+        <GradientStop Color="#111621" Offset="1" />
+    </LinearGradientBrush>
+
+    <FontFamily x:Key="UiFont">Segoe UI Variable Text, Segoe UI</FontFamily>
+    <FontFamily x:Key="DisplayFont">Segoe UI Variable Display, Segoe UI</FontFamily>
+    <FontFamily x:Key="IconFont">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
+</ResourceDictionary>

@@ -1,0 +1,55 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <UseWPF>true</UseWPF>
+    <!-- WinForms is only used for the notification-area (tray) icon. -->
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationIcon>Assets\SensorDeck.ico</ApplicationIcon>
+    <!-- WFO0003 asks WinForms apps to set DPI in code; this is a WPF app whose manifest DPI settings are correct. -->
+    <NoWarn>$(NoWarn);WFO0003</NoWarn>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>false</SelfContained>
+    <AssemblyName>SensorDeck</AssemblyName>
+    <RootNamespace>SensorDeck.App</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AssemblyTitle>SensorDeck Hardware Monitor</AssemblyTitle>
+  </PropertyGroup>
+
+  <!-- Release download: one self-contained .exe (no .NET install needed), native libs extracted on demand.
+       Compression is off on purpose: a compressed bundle is unpacked into RAM at startup (~75 MB more private
+       memory, measured). The installer and zip compress the exe for download anyway. -->
+  <PropertyGroup Condition="'$(PublishSingleFile)' == 'true'">
+    <SelfContained>true</SelfContained>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>false</EnableCompressionInSingleFile>
+    <DebugType>none</DebugType>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <!-- Debug builds run without elevation so the UI can be iterated on quickly;
+       readings that need admin rights then show "Requires administrator rights". -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug' Or '$(UseInvokerManifest)' == 'true'">
+    <ApplicationManifest>app.debug.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+  </ItemGroup>
+
+  <!-- Keep WPF types unambiguous: don't import WinForms/System.Drawing namespaces globally. -->
+  <ItemGroup>
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\SensorDeck.ico" />
+    <None Remove="Assets\SensorDeck-256.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SensorDeck.Core\SensorDeck.Core.csproj" />
+  </ItemGroup>
+
+</Project>

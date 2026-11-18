@@ -1,0 +1,128 @@
+<UserControl x:Class="SensorDeck.App.Views.GraphsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="clr-namespace:SensorDeck.App.Controls"
+             xmlns:vm="clr-namespace:SensorDeck.App.ViewModels">
+
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="NotSupportedText" Color="#7A869A" />
+
+        <DataTemplate DataType="{x:Type vm:GraphCardViewModel}">
+            <Border Style="{StaticResource Card}" Padding="18,16,18,12">
+                <DockPanel>
+                    <!-- Header: icon, title + device, current value -->
+                    <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+                        <Border Width="30" Height="30" CornerRadius="8" Background="{StaticResource AccentSoftBrush}" VerticalAlignment="Top">
+                            <c:Icon Data="{Binding IconKey, Converter={StaticResource ResourceKey}}" Width="17" Height="17"
+                                    Foreground="{StaticResource AccentLightBrush}" />
+                        </Border>
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center"
+                                    Visibility="{Binding IsMultiSeries, Converter={StaticResource BoolToVis}, ConverterParameter=invert}">
+                            <TextBlock Text="{Binding CurrentText}" FontWeight="SemiBold" FontFamily="{StaticResource DisplayFont}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="FontSize" Value="22" />
+                                        <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding CurrentText}" Value="Not supported">
+                                                <Setter Property="FontSize" Value="13" />
+                                                <Setter Property="Foreground" Value="{StaticResource NotSupportedText}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <TextBlock Text="{Binding CurrentUnit}" FontSize="12" Margin="4,0,0,4" VerticalAlignment="Bottom" Foreground="{StaticResource MutedBrush}" />
+                        </StackPanel>
+                        <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding Title}" FontSize="13.5" FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding DeviceName}" ToolTip="{Binding DeviceName}" FontSize="11.5" Margin="0,1,0,0"
+                                       Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                    </DockPanel>
+
+                    <!-- Footer: min/avg/max for single-series, legend for multi-series -->
+                    <Grid DockPanel.Dock="Bottom" Margin="0,6,0,0">
+                        <TextBlock Text="{Binding StatsText}" FontSize="11.5" Foreground="{StaticResource MutedBrush}"
+                                   Visibility="{Binding StatsText, Converter={StaticResource NullToVis}}" />
+                        <ItemsControl ItemsSource="{Binding Legend}" Focusable="False"
+                                      Visibility="{Binding IsMultiSeries, Converter={StaticResource BoolToVis}}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type vm:LegendEntry}">
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,22,2">
+                                        <Ellipse Width="8" Height="8" Fill="{Binding Brush}" VerticalAlignment="Center" />
+                                        <TextBlock Text="{Binding Name}" Margin="7,0,0,0" FontSize="12" />
+                                        <TextBlock Text="{Binding ValueText}" Margin="8,0,0,0" FontSize="12" FontWeight="SemiBold" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
+
+                    <!-- Graph, or an explanation when the reading isn't available -->
+                    <Grid Height="170">
+                        <c:LiveGraph Series="{Binding Series}" Revision="{Binding Revision}" AxisMode="{Binding AxisMode}"
+                                     Transform="{Binding Transform}" LabelFormat="{Binding LabelFormat}" MinSpan="{Binding MinSpan}"
+                                     AxisLabelFormat="{Binding AxisLabelFormat}"
+                                     VisibleSamples="{Binding DataContext.VisibleSamples, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                     SampleSeconds="{Binding DataContext.SampleSeconds, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                     Visibility="{Binding IsSupported, Converter={StaticResource BoolToVis}}" />
+                        <Border CornerRadius="8" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Background="#0E131C"
+                                Visibility="{Binding IsSupported, Converter={StaticResource BoolToVis}, ConverterParameter=invert}">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <c:Icon Data="{StaticResource IconInfo}" Width="20" Height="20" Foreground="{StaticResource DimBrush}" />
+                                <TextBlock Text="Not supported" HorizontalAlignment="Center" Margin="0,8,0,0" FontWeight="SemiBold"
+                                           Foreground="{StaticResource NotSupportedText}" />
+                                <TextBlock Text="{Binding Reason}" HorizontalAlignment="Center" Margin="0,2,0,0" FontSize="11.5"
+                                           Foreground="{StaticResource DimBrush}" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </DockPanel>
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+        <StackPanel Margin="22,18,22,22">
+            <!-- Header with time-range selector -->
+            <DockPanel Margin="6,4,6,10">
+                <Border DockPanel.Dock="Right" VerticalAlignment="Center" CornerRadius="8" Padding="3"
+                        Background="{StaticResource BgBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                    <ItemsControl ItemsSource="{Binding TimeRanges}" Focusable="False">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:TimeRangeOption}">
+                                <RadioButton Style="{StaticResource Segment}" GroupName="GraphRange" Content="{Binding Label}"
+                                             IsChecked="{Binding IsSelected, Mode=TwoWay}" AutomationProperties.Name="{Binding Label}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Border>
+                <StackPanel>
+                    <TextBlock Text="Graphs" Style="{StaticResource PageTitle}" />
+                    <TextBlock Margin="0,4,0,0" Style="{StaticResource Caption}" FontSize="13">
+                        <Run Text="{Binding RangeDescription, Mode=OneWay}" /><Run Text=" · hover a graph for exact values" />
+                    </TextBlock>
+                </StackPanel>
+            </DockPanel>
+
+            <UniformGrid Columns="2">
+                <ContentControl Content="{Binding CpuUsage}" Focusable="False" />
+                <ContentControl Content="{Binding GpuUsage}" Focusable="False" />
+                <ContentControl Content="{Binding CpuTemp}" Focusable="False" />
+                <ContentControl Content="{Binding GpuTemp}" Focusable="False" />
+                <ContentControl Content="{Binding Ram}" Focusable="False" />
+                <ContentControl Content="{Binding Vram}" Focusable="False" />
+                <ContentControl Content="{Binding CpuClock}" Focusable="False" />
+                <ContentControl Content="{Binding GpuClock}" Focusable="False" />
+            </UniformGrid>
+            <ContentControl Content="{Binding Storage}" Focusable="False" />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -1,0 +1,37 @@
+SensorDeck third-party notices
+==============================
+
+SensorDeck is MIT-licensed (see LICENSE). It includes the following open-source
+components, unmodified, under their own licences:
+
+LibreHardwareMonitorLib 0.9.6
+  Hardware sensor access (CPU, GPU, memory, motherboard, storage).
+  Licence: Mozilla Public License 2.0 — https://mozilla.org/MPL/2.0/
+  Source:  https://github.com/LibreHardwareMonitor/LibreHardwareMonitor
+
+DiskInfoToolkit 1.1.2, RAMSPDToolkit-NDD 1.4.2, BlackSharp.Core 1.0.7
+  Storage and memory-module sensor support used by LibreHardwareMonitor.
+  Licence: Mozilla Public License 2.0 — https://mozilla.org/MPL/2.0/
+  Source:  https://github.com/Blacktempel/DiskInfoToolkit
+           https://github.com/Blacktempel/RAMSPDToolkit
+           https://github.com/Blacktempel/BlackSharp
+
+HidSharp 2.6.4
+  USB HID device access used by LibreHardwareMonitor.
+  Copyright 2010-2025 James F. Bellinger
+  Licence: Apache License 2.0 — https://www.apache.org/licenses/LICENSE-2.0
+  Source:  https://software.seekye.com/hidsharp
+
+CommunityToolkit.Mvvm 8.4.2
+  Copyright (c) .NET Foundation and Contributors
+  Licence: MIT — https://github.com/CommunityToolkit/dotnet/blob/main/License.md
+
+.NET 10 runtime, WPF, Windows Forms, System.Management, System.IO.Ports,
+System.CodeDom, Mono.Posix.NETStandard
+  Copyright (c) .NET Foundation and Contributors
+  Licence: MIT — https://github.com/dotnet/runtime/blob/main/LICENSE.TXT
+
+Not included, but used when present:
+PawnIO (by namazso) — signed kernel driver that LibreHardwareMonitor uses for CPU
+temperatures, CPU clocks and motherboard fan headers. Installed separately by the
+user from https://pawnio.eu/ under its own licence.
