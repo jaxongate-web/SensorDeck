@@ -4,6 +4,8 @@ A free, lightweight hardware monitor for Windows with a modern dark interface.
 Every reading comes from a real hardware sensor (via [LibreHardwareMonitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor)).
 Anything your hardware, drivers or permissions don't expose is shown as **Not supported** with the reason, never as a fake `0`.
 
+**[Website](https://jaxongate-web.github.io/SensorDeck/) · [Download for Windows](https://github.com/jaxongate-web/SensorDeck/releases/latest/download/SensorDeck-setup.exe) · [All releases](https://github.com/jaxongate-web/SensorDeck/releases)**
+
 ![SensorDeck dashboard](docs/dashboard.png)
 
 ## Features
@@ -21,12 +23,12 @@ Anything your hardware, drivers or permissions don't expose is shown as **Not su
 
 ## Install
 
-Download from the releases page:
+Get it from the [website](https://jaxongate-web.github.io/SensorDeck/) or the [releases page](https://github.com/jaxongate-web/SensorDeck/releases/latest):
 
 | File | What it is |
 |---|---|
-| `SensorDeck-x.y.z-setup.exe` | Installer — Start-menu shortcut, optional desktop icon, uninstaller in *Settings → Apps*. |
-| `SensorDeck-x.y.z-win-x64-portable.zip` | Portable — unzip anywhere and run `SensorDeck.exe`. |
+| `SensorDeck-setup.exe` | Installer — Start-menu shortcut, optional desktop icon, uninstaller in *Settings → Apps*. Also attached with the version in its name. |
+| `SensorDeck-portable.zip` | Portable — unzip anywhere and run `SensorDeck.exe`. |
 | `SHA256SUMS.txt` | Checksums to verify your download (`Get-FileHash <file>` in PowerShell). |
 
 Requirements: Windows 10 (1809) or Windows 11, 64-bit. Nothing else — .NET is built in.
@@ -76,7 +78,17 @@ src/SensorDeck.Probe    Console tool that dumps every sensor on the current PC (
 tests/                  xUnit tests (sensor selection with fake hardware, formatting, settings, axis scaling)
 installer/              Inno Setup script
 build/release.ps1       Release build script
+docs/                   Website (served by GitHub Pages) and README screenshots
+tools/                  Icon generator and local website preview (serve-site.ps1)
 ```
+
+### Releasing a new version
+
+1. Bump `<Version>` in `Directory.Build.props`, commit and push.
+2. Run `.\build\release.ps1`.
+3. `gh release create vX.Y.Z --generate-notes dist\*`
+
+The website's download button links to `releases/latest/download/SensorDeck-setup.exe`, so it serves the new version automatically.
 
 Settings are stored in `%AppData%\SensorDeck\settings.json`.
 
