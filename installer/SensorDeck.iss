@@ -51,7 +51,10 @@ Name: "{autoprograms}\SensorDeck"; Filename: "{app}\SensorDeck.exe"; Comment: "H
 Name: "{autodesktop}\SensorDeck"; Filename: "{app}\SensorDeck.exe"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\SensorDeck.exe"; Description: "Launch SensorDeck"; Flags: nowait postinstall skipifsilent
+; postinstall entries run as the original NON-elevated user by default, and SensorDeck's manifest requires
+; administrator, so CreateProcess fails with error 740. runascurrentuser launches it with Setup's own admin
+; rights instead (no second UAC prompt).
+Filename: "{app}\SensorDeck.exe"; Description: "Launch SensorDeck"; Flags: nowait postinstall skipifsilent runascurrentuser
 Filename: "https://pawnio.eu/"; Description: "Get the free PawnIO driver (enables CPU temperature, clock speed and motherboard fan readings)"; \
     Flags: shellexec postinstall skipifsilent unchecked nowait; Check: not PawnIOInstalled
 
