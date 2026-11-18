@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SensorDeck: free hardware monitor for Windows</title>
+<meta name="description" content="Live CPU and GPU temperatures, usage, clock speeds, RAM, VRAM, fans and drive temperatures, read straight from your hardware sensors. Lightweight, private and completely free.">
+<meta name="theme-color" content="#0B0E14">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="icon.png" type="image/png">
+<link rel="apple-touch-icon" href="icon.png">
+<!-- Link previews (Discord, Reddit, X, etc.) -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="SensorDeck: free hardware monitor for Windows">
+<meta property="og:description" content="Live temperatures, usage and clock speeds for your CPU, GPU, memory, fans and drives. Lightweight, private and free.">
+<meta property="og:url" content="https://jaxongate-web.github.io/SensorDeck/">
+<meta property="og:image" content="https://jaxongate-web.github.io/SensorDeck/dashboard.png">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+  :root {
+    --bg: #0B0E14;
+    --surface: #121722;
+    --raised: #18202D;
+    --border: #232C3B;
+    --text: #E6EAF2;
+    --muted: #8A94A6;
+    --dim: #5B6577;
+    --accent: #3B82F6;
+    --accent-light: #60A5FA;
+    --accent-deep: #1D4ED8;
+    --warn: #F59E0B;
+    --ok: #22C55E;
+    --radius: 14px;
+    --font: "Segoe UI Variable Display", "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent-light); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  img { max-width: 100%; display: block; }
+  .wrap { width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- Nav ---------- */
+  nav {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(11, 14, 20, 0.82);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  nav .wrap { display: flex; align-items: center; gap: 24px; height: 64px; }
+  .brand { display: flex; align-items: center; gap: 10px; color: var(--text); font-weight: 600; font-size: 17px; }
+  .brand:hover { text-decoration: none; }
+  .brand img { width: 28px; height: 28px; border-radius: 7px; }
+  nav .links { margin-left: auto; display: flex; gap: 22px; align-items: center; }
+  nav .links a { color: var(--muted); font-size: 14.5px; }
+  nav .links a:hover { color: var(--text); text-decoration: none; }
+  nav .gh { display: inline-flex; align-items: center; gap: 7px; }
+  nav .gh svg { width: 18px; height: 18px; fill: currentColor; }
+
+  /* ---------- Hero ---------- */
+  .hero { position: relative; padding: 88px 0 40px; text-align: center; overflow: hidden; }
+  .hero::before {
+    content: ""; position: absolute; inset: -200px 0 auto 0; height: 700px; z-index: -1;
+    background: radial-gradient(ellipse 60% 50% at 50% 30%, rgba(59, 130, 246, 0.22), transparent 70%);
+  }
+  .pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 14px; border-radius: 999px;
+    background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3);
+    color: var(--accent-light); font-size: 13.5px; font-weight: 600;
+  }
+  .pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 10px var(--ok); }
+  h1 {
+    margin: 22px auto 0; max-width: 820px;
+    font-size: clamp(38px, 6vw, 64px); line-height: 1.07; letter-spacing: -0.025em; font-weight: 700;
+  }
+  h1 .grad {
+    background: linear-gradient(100deg, var(--accent-light), #93C5FD 60%, var(--accent-light));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .lede { margin: 22px auto 0; max-width: 640px; color: var(--muted); font-size: clamp(17px, 2vw, 19px); }
+
+  .cta { margin-top: 36px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .btn-download {
+    display: inline-flex; align-items: center; gap: 12px;
+    padding: 16px 30px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent-deep), var(--accent) 55%, var(--accent-light));
+    color: #fff; font-size: 18px; font-weight: 600;
+    box-shadow: 0 10px 30px rgba(59, 130, 246, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .btn-download:hover { text-decoration: none; transform: translateY(-2px); box-shadow: 0 14px 40px rgba(59, 130, 246, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2); }
+  .btn-download:focus-visible { outline: 3px solid var(--accent-light); outline-offset: 3px; }
+  .btn-download svg { width: 20px; height: 20px; fill: #fff; }
+  .meta { color: var(--dim); font-size: 14px; }
+  .meta strong { color: var(--muted); font-weight: 600; }
+  .alt-links { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; font-size: 14.5px; }
+  .not-windows {
+    display: none; max-width: 520px; margin: 4px auto 0; padding: 10px 16px; border-radius: 10px;
+    background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); color: #FCD34D; font-size: 14px;
+  }
+
+  /* ---------- Screenshot showcase ---------- */
+  .showcase { padding: 32px 0 24px; }
+  .tabs { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
+  .tab {
+    padding: 8px 18px; border-radius: 9px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--muted); font: inherit; font-size: 14.5px; cursor: pointer;
+  }
+  .tab:hover { color: var(--text); }
+  .tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .tab:focus-visible { outline: 2px solid var(--accent-light); outline-offset: 2px; }
+  .frame {
+    position: relative; max-width: 1000px; margin: 0 auto; border-radius: 14px; padding: 6px;
+    background: linear-gradient(160deg, rgba(96, 165, 250, 0.45), rgba(35, 44, 59, 0.6) 40%, rgba(35, 44, 59, 0.6));
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55), 0 0 120px rgba(59, 130, 246, 0.15);
+  }
+  .frame img { border-radius: 10px; width: 100%; height: auto; aspect-ratio: 1240 / 820; object-fit: cover; object-position: top; background: var(--surface); }
+  .caption { text-align: center; color: var(--dim); font-size: 14px; margin-top: 16px; }
+
+  /* ---------- Stats ---------- */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 56px auto 0; max-width: 900px; }
+  .stat { text-align: center; padding: 22px 12px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--border); }
+  .stat b { display: block; font-size: 30px; font-weight: 700; letter-spacing: -0.02em; }
+  .stat span { color: var(--muted); font-size: 14px; }
+
+  /* ---------- Sections ---------- */
+  section { padding: 88px 0 0; }
+  .eyebrow { color: var(--accent-light); font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; text-align: center; }
+  h2 { margin: 10px auto 0; text-align: center; font-size: clamp(28px, 4vw, 40px); line-height: 1.15; letter-spacing: -0.02em; max-width: 720px; }
+  .section-lede { text-align: center; color: var(--muted); max-width: 640px; margin: 14px auto 0; }
+
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 44px; }
+  .card {
+    padding: 26px; border-radius: var(--radius);
+    background: linear-gradient(180deg, #151B27, #111621); border: 1px solid var(--border);
+  }
+  .card .ico {
+    width: 42px; height: 42px; border-radius: 11px; display: grid; place-items: center;
+    background: rgba(59, 130, 246, 0.12); margin-bottom: 16px;
+  }
+  .card .ico svg { width: 22px; height: 22px; fill: none; stroke: var(--accent-light); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .card h3 { margin: 0 0 8px; font-size: 18px; }
+  .card p { margin: 0; color: var(--muted); font-size: 15px; }
+
+  /* Honest readings demo */
+  .honest { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 44px; }
+  .reading { padding: 24px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--border); }
+  .reading .label { color: var(--muted); font-size: 13.5px; }
+  .reading .value { font-size: 40px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; margin-top: 4px; }
+  .reading .value small { font-size: 18px; color: var(--muted); font-weight: 400; margin-left: 4px; }
+  .reading .ns { font-size: 20px; font-weight: 600; color: #7A869A; margin-top: 10px; }
+  .reading .why { font-size: 13px; color: var(--dim); }
+  .reading .bar { height: 4px; border-radius: 2px; background: #202938; margin-top: 16px; overflow: hidden; }
+  .reading .bar i { display: block; height: 100%; width: 41%; background: linear-gradient(90deg, var(--accent-deep), var(--accent-light)); }
+  .reading .device { margin-top: 16px; padding: 9px 12px; border-radius: 8px; background: #0E131C; border: 1px solid var(--border); font-size: 14px; font-weight: 600; }
+
+  /* Install steps */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 44px; counter-reset: step; }
+  .step { position: relative; padding: 26px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--border); }
+  .step::before {
+    counter-increment: step; content: counter(step);
+    display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
+    background: var(--accent); color: #fff; font-weight: 700; margin-bottom: 14px;
+  }
+  .step h3 { margin: 0 0 6px; font-size: 17px; }
+  .step p { margin: 0; color: var(--muted); font-size: 15px; }
+  .step kbd {
+    font-family: inherit; font-size: 13px; padding: 1px 7px; border-radius: 5px;
+    background: var(--raised); border: 1px solid var(--border); color: var(--text); white-space: nowrap;
+  }
+  .note {
+    display: flex; gap: 14px; align-items: flex-start; margin-top: 18px; padding: 18px 22px; border-radius: var(--radius);
+    background: rgba(245, 158, 11, 0.06); border: 1px solid rgba(245, 158, 11, 0.28);
+  }
+  .note svg { flex: none; width: 22px; height: 22px; fill: none; stroke: var(--warn); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; margin-top: 2px; }
+  .note p { margin: 0; color: var(--muted); font-size: 15px; }
+  .note b { color: var(--text); }
+  .reqs { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 28px; margin-top: 26px; color: var(--muted); font-size: 14.5px; }
+  .reqs span::before { content: "✓"; color: var(--ok); font-weight: 700; margin-right: 8px; }
+
+  /* FAQ */
+  .faq { max-width: 780px; margin: 40px auto 0; }
+  details { border-bottom: 1px solid var(--border); }
+  summary {
+    cursor: pointer; list-style: none; padding: 20px 4px; font-size: 17px; font-weight: 600;
+    display: flex; justify-content: space-between; align-items: center; gap: 16px;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; color: var(--accent-light); font-size: 24px; font-weight: 400; line-height: 1; transition: transform 0.2s; }
+  details[open] summary::after { transform: rotate(45deg); }
+  summary:focus-visible { outline: 2px solid var(--accent-light); outline-offset: 2px; border-radius: 6px; }
+  details p { margin: 0 4px 20px; color: var(--muted); }
+
+  /* Final CTA + footer */
+  .final { margin-top: 96px; padding: 56px 24px; text-align: center; border-radius: 20px;
+    background: radial-gradient(ellipse 70% 120% at 50% 0%, rgba(59, 130, 246, 0.2), transparent 70%), var(--surface);
+    border: 1px solid var(--border); }
+  .final h2 { margin-top: 0; }
+  footer { margin-top: 72px; padding: 32px 0 48px; border-top: 1px solid var(--border); color: var(--dim); font-size: 14px; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 28px; align-items: center; justify-content: space-between; }
+  footer .flinks { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+  footer a { color: var(--muted); }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 860px) {
+    .grid, .steps { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 640px) {
+    .wrap { padding: 0 16px; }
+    nav .links .hide-sm { display: none; }
+    .hero { padding-top: 56px; }
+    .grid, .steps, .honest { grid-template-columns: 1fr; }
+    .btn-download { width: 100%; justify-content: center; }
+    .stats { gap: 8px; margin-top: 40px; }
+    .stat { padding: 16px 6px; }
+    .stat b { font-size: 21px; }
+    .stat span { font-size: 12.5px; line-height: 1.35; display: block; }
+    .tabs { gap: 4px; }
+    .tab { padding: 7px 11px; font-size: 13.5px; }
+    section { padding-top: 64px; }
+    .final { margin-top: 64px; padding: 40px 18px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .btn-download, summary::after { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="icon.png" alt="" width="28" height="28">SensorDeck</a>
+    <div class="links">
+      <a class="hide-sm" href="#features">Features</a>
+      <a class="hide-sm" href="#install">Install</a>
+      <a class="hide-sm" href="#faq">FAQ</a>
+      <a class="gh" href="https://github.com/jaxongate-web/SensorDeck" aria-label="SensorDeck on GitHub">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        <span>GitHub</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<main id="top">
+  <!-- ===== Hero ===== -->
+  <header class="hero">
+    <div class="wrap">
+      <span class="pill"><span class="dot"></span>Free &amp; open source · Windows 10 &amp; 11</span>
+      <h1>See what your PC is <span class="grad">really</span> doing.</h1>
+      <p class="lede">Live temperatures, usage and clock speeds for your CPU, GPU, memory, fans and drives, read straight from your hardware sensors. Lightweight, private and completely free.</p>
+
+      <div class="cta">
+        <a class="btn-download" href="https://github.com/jaxongate-web/SensorDeck/releases/latest/download/SensorDeck-setup.exe">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.1 10.4 4v7.1H3V5.1Zm0 13.8 7.4 1.1v-7.1H3v6Zm8.3 1.2L21 21.5v-8.6h-9.7v7.2Zm0-16.2v7.2H21V2.5L11.3 3.9Z"/></svg>
+          Download for Windows
+        </a>
+        <div class="meta"><strong data-version>Version 1.0.0</strong> · <span data-size>48 MB</span> installer · Open the downloaded file to install</div>
+        <div class="alt-links">
+          <a href="https://github.com/jaxongate-web/SensorDeck/releases/latest/download/SensorDeck-portable.zip">Portable .zip (no install)</a>
+          <a href="https://github.com/jaxongate-web/SensorDeck/releases/latest">Release notes &amp; checksums</a>
+        </div>
+        <p class="not-windows" id="not-windows">SensorDeck is a Windows app. Open this page on a Windows PC to download it.</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== Screenshots ===== -->
+  <div class="showcase">
+    <div class="wrap">
+      <div class="tabs" role="tablist" aria-label="Screenshots">
+        <button class="tab" role="tab" aria-selected="true" data-shot="dashboard.png" data-caption="Dashboard: every reading is labelled with the exact hardware it comes from.">Dashboard</button>
+        <button class="tab" role="tab" aria-selected="false" data-shot="graphs.png" data-caption="Live graphs over 1, 5 or 10 minutes. Hover any graph for exact values.">Graphs</button>
+        <button class="tab" role="tab" aria-selected="false" data-shot="hardware.png" data-caption="Hardware: your CPU, GPU, memory modules, motherboard, drives and every raw sensor.">Hardware</button>
+        <button class="tab" role="tab" aria-selected="false" data-shot="settings.png" data-caption="Settings: °C or °F, refresh rate, warning colours, tray and start-up options.">Settings</button>
+      </div>
+      <div class="frame">
+        <img id="shot" src="dashboard.png" width="1240" height="820" alt="SensorDeck dashboard showing live CPU, GPU, memory, fan and storage readings">
+      </div>
+      <p class="caption" id="caption">Dashboard: every reading is labelled with the exact hardware it comes from.</p>
+
+      <div class="stats">
+        <div class="stat"><b>~3%</b><span>of one CPU core</span></div>
+        <div class="stat"><b>~150 MB</b><span>memory use</span></div>
+        <div class="stat"><b>0</b><span>ads, accounts or trackers</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Features ===== -->
+  <section id="features">
+    <div class="wrap">
+      <p class="eyebrow">Features</p>
+      <h2>Everything you want to know about your hardware. Nothing you don't.</h2>
+      <div class="grid">
+        <div class="card">
+          <div class="ico"><svg viewBox="0 0 24 24"><path d="M3.5 3.5H10V10H3.5zM14 3.5h6.5V10H14zM3.5 14H10v6.5H3.5zM14 14h6.5v6.5H14z"/></svg></div>
+          <h3>Live dashboard</h3>
+          <p>CPU and GPU temperature, usage, clock speed and power, plus RAM, VRAM, fans and drive temperatures, all on one screen.</p>
+        </div>
+        <div class="card">
+          <div class="ico"><svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 15l4-5 3 3 6-7"/></svg></div>
+          <h3>Performance graphs</h3>
+          <p>Smooth live graphs over 1, 5 or 10 minutes with min, average and max, so you can spot spikes while gaming or working.</p>
+        </div>
+        <div class="card">
+          <div class="ico"><svg viewBox="0 0 24 24"><path d="M6 6h12v12H6zM9.5 9.5h5v5h-5zM9 2.5V6M15 2.5V6M9 18v3.5M15 18v3.5M2.5 9H6M2.5 15H6M18 9h3.5M18 15h3.5"/></svg></div>
+          <h3>Your exact hardware</h3>
+          <p>Detects your real components automatically, like your CPU and GPU models, RAM type and speed, and drive capacity, and shows them under every reading.</p>
+        </div>
+        <div class="card">
+          <div class="ico"><svg viewBox="0 0 24 24"><path d="M12 2.5 20 5.5V11c0 5-3.5 8.8-8 10.5C7.5 19.8 4 16 4 11V5.5zM9 12l2 2 4-4"/></svg></div>
+          <h3>Honest readings</h3>
+          <p>Every number comes from a real sensor. If your hardware doesn't report something, SensorDeck says so and tells you why. No fake zeros.</p>
+        </div>
+        <div class="card">
+          <div class="ico"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16M8 4v4M16 10v4M10 16v4"/></svg></div>
+          <h3>Fits how you work</h3>
+          <p>°C or °F, custom warning colours, always on top, minimise to the system tray with live temps in the tooltip, and start with Windows.</p>
+        </div>
+        <div class="card">
+          <div class="ico"><svg viewBox="0 0 24 24"><path d="M5 11h14v10H5zM8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+          <h3>Private &amp; free forever</h3>
+          <p>No ads, no accounts, no telemetry. It never connects to the internet. Open source under the MIT licence.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Honest readings ===== -->
+  <section>
+    <div class="wrap">
+      <p class="eyebrow">Real data only</p>
+      <h2>If it's on screen, it came from a sensor.</h2>
+      <p class="section-lede">Many monitors quietly show 0 or a guess when a reading isn't available. SensorDeck shows you exactly what your hardware reports, and explains anything it can't read.</p>
+      <div class="honest">
+        <div class="reading">
+          <div class="label">GPU temperature</div>
+          <div class="value">41<small>°C</small></div>
+          <div class="bar"><i></i></div>
+          <div class="device">NVIDIA GeForce RTX 4070 SUPER</div>
+        </div>
+        <div class="reading">
+          <div class="label">CPU temperature</div>
+          <div class="ns">Not supported</div>
+          <div class="why">Requires the PawnIO driver</div>
+          <div class="bar"></div>
+          <div class="device">Intel Core i7-14700</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Install ===== -->
+  <section id="install">
+    <div class="wrap">
+      <p class="eyebrow">Install</p>
+      <h2>Up and running in under a minute</h2>
+      <div class="steps">
+        <div class="step">
+          <h3>Download</h3>
+          <p>Click <a href="https://github.com/jaxongate-web/SensorDeck/releases/latest/download/SensorDeck-setup.exe">Download for Windows</a>. The installer is about 48 MB.</p>
+        </div>
+        <div class="step">
+          <h3>Open the file</h3>
+          <p>Open <b>SensorDeck-setup.exe</b> from your downloads. If Windows says it "protected your PC", choose <kbd>More info</kbd> then <kbd>Run anyway</kbd>.</p>
+        </div>
+        <div class="step">
+          <h3>Install &amp; allow</h3>
+          <p>Click Install. SensorDeck asks for administrator permission when it starts, because reading hardware sensors requires it.</p>
+        </div>
+      </div>
+      <div class="note">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5a9.5 9.5 0 1 0 0 19 9.5 9.5 0 0 0 0-19zM12 11v5.5M12 7.5v.1"/></svg>
+        <p><b>Want CPU temperatures?</b> CPU temperature, CPU clock speed and motherboard fan readings use the free, signed
+          <a href="https://pawnio.eu/">PawnIO</a> driver. SensorDeck shows a reminder with a link if it isn't installed. Everything else works without it.</p>
+      </div>
+      <div class="reqs">
+        <span>Windows 10 (1809+) or Windows 11</span>
+        <span>64-bit PC</span>
+        <span>Nothing else to install</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FAQ ===== -->
+  <section id="faq">
+    <div class="wrap">
+      <p class="eyebrow">FAQ</p>
+      <h2>Questions</h2>
+      <div class="faq">
+        <details>
+          <summary>Is SensorDeck really free?</summary>
+          <p>Yes. No trial, no premium version, no ads. It's open source under the MIT licence, and anyone can read the code on GitHub.</p>
+        </details>
+        <details>
+          <summary>Why does Windows warn me when I open it?</summary>
+          <p>SensorDeck isn't code-signed yet (signing certificates cost money), so Windows SmartScreen shows "Windows protected your PC" for new apps. Click <b>More info → Run anyway</b>. If you want to double-check the file, compare it against the checksums on the release page.</p>
+        </details>
+        <details>
+          <summary>Why does it need administrator permission?</summary>
+          <p>Windows only lets programs read low-level hardware sensors, like CPU and drive temperatures, with administrator rights. Every hardware monitor works this way.</p>
+        </details>
+        <details>
+          <summary>Why does my CPU temperature say "Not supported"?</summary>
+          <p>CPU temperature, CPU clock speed and motherboard fans are read through the free PawnIO driver. Install it from <a href="https://pawnio.eu/">pawnio.eu</a> and restart SensorDeck. Some laptops and pre-built PCs don't expose certain sensors at all; SensorDeck will tell you when that's the case.</p>
+        </details>
+        <details>
+          <summary>Does it collect or send any data?</summary>
+          <p>No. SensorDeck never connects to the internet. Your settings are saved in a small file on your PC, and that's it. This website doesn't use cookies or trackers either.</p>
+        </details>
+        <details>
+          <summary>How do I uninstall it?</summary>
+          <p>Open Windows <b>Settings → Apps</b>, find SensorDeck and click Uninstall. For the portable version, just delete its folder.</p>
+        </details>
+      </div>
+
+      <div class="final">
+        <h2>Ready to see inside your PC?</h2>
+        <div class="cta">
+          <a class="btn-download" href="https://github.com/jaxongate-web/SensorDeck/releases/latest/download/SensorDeck-setup.exe">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.1 10.4 4v7.1H3V5.1Zm0 13.8 7.4 1.1v-7.1H3v6Zm8.3 1.2L21 21.5v-8.6h-9.7v7.2Zm0-16.2v7.2H21V2.5L11.3 3.9Z"/></svg>
+            Download for Windows
+          </a>
+          <div class="meta"><strong data-version>Version 1.0.0</strong> · Free · Windows 10 &amp; 11</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 SensorDeck contributors · MIT licence</span>
+    <div class="flinks">
+      <a href="https://github.com/jaxongate-web/SensorDeck">Source code</a>
+      <a href="https://github.com/jaxongate-web/SensorDeck/releases">All releases</a>
+      <a href="https://github.com/jaxongate-web/SensorDeck/issues">Report a problem</a>
+      <a href="https://github.com/LibreHardwareMonitor/LibreHardwareMonitor">Powered by LibreHardwareMonitor</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Screenshot tabs
+  (function () {
+    var tabs = document.querySelectorAll('.tab');
+    var shot = document.getElementById('shot');
+    var caption = document.getElementById('caption');
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        tabs.forEach(function (t) { t.setAttribute('aria-selected', 'false'); });
+        tab.setAttribute('aria-selected', 'true');
+        shot.src = tab.dataset.shot;
+        shot.alt = 'SensorDeck ' + tab.textContent.trim() + ' page';
+        caption.textContent = tab.dataset.caption;
+      });
+    });
+  })();
+
+  // Gentle notice for visitors not on Windows
+  (function () {
+    var ua = navigator.userAgent || '';
+    if (!/Windows/i.test(ua)) document.getElementById('not-windows').style.display = 'block';
+  })();
+
+  // Show the newest version and size from GitHub (falls back to the text already on the page).
+  (function () {
+    if (!window.fetch) return;
+    fetch('https://api.github.com/repos/jaxongate-web/SensorDeck/releases/latest')
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (rel) {
+        if (!rel || !rel.tag_name) return;
+        var v = 'Version ' + rel.tag_name.replace(/^v/, '');
+        document.querySelectorAll('[data-version]').forEach(function (el) { el.textContent = v; });
+        var setup = (rel.assets || []).filter(function (a) { return a.name === 'SensorDeck-setup.exe'; })[0];
+        if (setup) {
+          var mb = Math.round(setup.size / 1048576) + ' MB';
+          document.querySelectorAll('[data-size]').forEach(function (el) { el.textContent = mb; });
+        }
+      })
+      .catch(function () { /* offline or rate-limited: keep the built-in text */ });
+  })();
+</script>
+</body>
+</html>

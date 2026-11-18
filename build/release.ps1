@@ -2,6 +2,8 @@
 .SYNOPSIS
   Builds a SensorDeck release: runs tests, publishes a self-contained single-file exe,
   and produces a portable .zip, an Inno Setup installer and SHA-256 checksums in .\dist.
+  Upload everything in .\dist to the GitHub release (gh release create vX.Y.Z dist\*); the
+  unversioned SensorDeck-setup.exe / SensorDeck-portable.zip keep the website's download links working.
 
 .EXAMPLE
   .\build\release.ps1
@@ -86,6 +88,14 @@ if (-not $SkipInstaller) {
     & $iscc /Qp "/DAppVersion=$version" "/DSourceDir=$publishDir" (Join-Path $root 'installer\SensorDeck.iss')
     if ($LASTEXITCODE -ne 0) { throw 'Installer build failed' }
 }
+
+Step 'Adding stable download names'
+# Unversioned copies give the website a permanent link that always serves the newest release:
+#   https://github.com/<owner>/SensorDeck/releases/latest/download/SensorDeck-setup.exe
+if (-not $SkipInstaller) {
+    Copy-Item (Join-Path $dist "SensorDeck-$version-setup.exe") (Join-Path $dist 'SensorDeck-setup.exe')
+}
+Copy-Item $zip (Join-Path $dist 'SensorDeck-portable.zip')
 
 Step 'Writing checksums'
 $sums = Get-ChildItem $dist -File | Where-Object Name -ne 'SHA256SUMS.txt' | ForEach-Object {
